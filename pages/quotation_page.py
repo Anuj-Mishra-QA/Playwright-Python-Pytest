@@ -1,0 +1,161 @@
+from data.quotation_data import (
+    CUSTOMER_NAME,
+    PRODUCT_NAME,
+    SALES_ORDER_QUANTITY,
+)
+
+
+class QuotationPage:
+
+    def __init__(self, page):
+        self.page = page
+
+    def new_quotation(self):
+
+        self.page.get_by_text("Orders", exact=True).click()
+        self.page.get_by_role("menuitem", name="Quotations").click()
+
+        print("Quotations opened successfully")
+
+        self.page.get_by_role("button", name="New").click()
+
+        print("New Quotation opened")
+
+    def select_customer(self):
+
+        customer_field = self.page.locator("input[id^='partner_id']")
+
+        customer_field.wait_for(state="visible")
+        customer_field.click()
+        customer_field.fill(CUSTOMER_NAME)
+
+        self.page.wait_for_timeout(1000)
+
+        customer_field.press("ArrowDown")
+        customer_field.press("Enter")
+
+        print(f"Customer Selected : {CUSTOMER_NAME}")
+
+    def add_product(self):
+
+        self.page.get_by_text("Add a product").click()
+
+        product_field = self.page.get_by_placeholder("Search a product")
+
+        product_field.wait_for(state="visible")
+        product_field.click()
+        product_field.fill(PRODUCT_NAME)
+
+        self.page.locator(".o-autocomplete--dropdown-menu").wait_for()
+
+        self.page.locator(
+            ".o-autocomplete--dropdown-menu .dropdown-item",
+            has_text=PRODUCT_NAME
+        ).first.click()
+
+        print(f"Product Selected : {PRODUCT_NAME}")
+
+    def enter_quantity(self):
+
+        quantity_field = self.page.locator(
+            "div[name='product_uom_qty'] input"
+        )
+
+        quantity_field.wait_for(state="visible")
+        quantity_field.click()
+        quantity_field.fill(str(SALES_ORDER_QUANTITY))
+        quantity_field.press("Tab")
+
+        print(f"Quotation Quantity Entered: {SALES_ORDER_QUANTITY}")
+
+    def verify_amount(self):
+
+        # Wait for Total Amount
+        self.page.locator("span[name='amount_total']").wait_for(state="visible")
+
+        untaxed_amount = self.page.locator(
+            "span[name='Untaxed Amount']"
+        ).inner_text().strip()
+
+        total_amount = self.page.locator(
+            "span[name='amount_total']"
+        ).inner_text().strip()
+
+        tax_values = self.page.locator("span.o_tax_group_amount_value")
+
+        taxes = []
+
+        for i in range(tax_values.count()):
+            taxes.append(tax_values.nth(i).inner_text().strip())
+
+        print("\n===== Amount Details =====")
+        print(f"Untaxed Amount : {untaxed_amount}")
+
+        if taxes:
+            for index, tax in enumerate(taxes, start=1):
+                print(f"Tax {index} : {tax}")
+        else:
+            print("Tax : Not Available")
+
+        print(f"Total Amount : {total_amount}")
+
+        return {
+            "untaxed_amount": untaxed_amount,
+            "taxes": taxes,
+            "total": total_amount
+        }
+
+    def confirm_order(self):
+
+        self.page.get_by_role(
+            "button",
+            name="Confirm"
+        ).click()
+
+        print("Sales Order Confirmed Successfully")
+
+    def open_delivery(self):
+
+        delivery_btn = self.page.locator("button:has(i.fa-truck)")
+
+        delivery_btn.wait_for(state="visible")
+        delivery_btn.click()
+
+        print("Delivery Opened Successfully")
+
+        self.page.get_by_role(
+            "button",
+            name="Validate"
+        ).click()
+
+        print("Delivery Validated Successfully")
+
+        breadcrumb = self.page.locator("li.o_back_button a")
+
+        breadcrumb.wait_for(state="visible")
+        breadcrumb.click()
+
+        print("Returned to Sales Order")
+
+    def create_regular_invoice(self):
+
+        self.page.get_by_role(
+            "button",
+            name="Create Invoice"
+        ).click()
+
+        print("Create Invoice Clicked")
+
+        self.page.get_by_role(
+            "button",
+            name="Create Draft"
+        ).click()
+
+        print("Draft Invoice Created")
+
+        self.page.get_by_role(
+            "button",
+            name="Confirm"
+        ).click()
+
+        print("Invoice Confirmed Successfully")

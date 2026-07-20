@@ -1,0 +1,3 @@
+PRODUCT_NAME = "Automation_Product_20260708_163228"
+
+QUANTITY = 100
