@@ -5,3 +5,7 @@ PASSWORD = "admin123"
 
 HEADLESS = False
 SLOW_MO = 500
+
+# Video Recording
+VIDEO = False
+VIDEO_PATH = "reports/videos"
