@@ -6,6 +6,7 @@ import pytest
 from pytest_html import extras
 
 from utils.browser import Browser
+from pages.login_page import LoginPage
 
 
 @pytest.fixture
@@ -21,6 +22,17 @@ def page():
     playwright.stop()
 
 
+@pytest.fixture
+def logged_in_page(page):
+    """
+    Login before executing the test.
+    """
+    login = LoginPage(page)
+    login.login()
+
+    return page
+
+
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     """
@@ -31,7 +43,7 @@ def pytest_runtest_makereport(item, call):
 
     if report.when == "call" and report.failed:
 
-        page = item.funcargs.get("page")
+        page = item.funcargs.get("page") or item.funcargs.get("logged_in_page")
 
         if page:
 

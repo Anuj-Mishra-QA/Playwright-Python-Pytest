@@ -1,13 +1,9 @@
-from pages.login_page import LoginPage
 from pages.home_page import HomePage
 
 
-def test_home_navigation(page):
+def test_home_navigation(logged_in_page):
 
-    login = LoginPage(page)
-    home = HomePage(page)
-
-    login.login()
+    home = HomePage(logged_in_page)
 
     home.open_sales()
     home.open_products()

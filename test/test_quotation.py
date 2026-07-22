@@ -1,15 +1,11 @@
-from pages.login_page import LoginPage
 from pages.home_page import HomePage
 from pages.quotation_page import QuotationPage
 
 
-def test_sales_order_flow(page):
+def test_sales_order_flow(logged_in_page):
 
-    login = LoginPage(page)
-    home = HomePage(page)
-    quotation = QuotationPage(page)
-
-    login.login()
+    home = HomePage(logged_in_page)
+    quotation = QuotationPage(logged_in_page)
 
     home.open_sales()
 

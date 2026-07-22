@@ -1,15 +1,11 @@
-from pages.login_page import LoginPage
 from pages.home_page import HomePage
 from pages.customer_page import CustomerPage
 
 
-def test_create_customer(page):
+def test_create_customer(logged_in_page):
 
-    login = LoginPage(page)
-    home = HomePage(page)
-    customer = CustomerPage(page)
-
-    login.login()
+    home = HomePage(logged_in_page)
+    customer = CustomerPage(logged_in_page)
 
     home.open_sales()
     home.open_customers()

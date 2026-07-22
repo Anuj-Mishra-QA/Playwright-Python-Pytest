@@ -1,16 +1,11 @@
-from pages.login_page import LoginPage
 from pages.home_page import HomePage
 from pages.product_page import ProductPage
 
 
-def test_create_product(page):
+def test_create_product(logged_in_page):
 
-    login = LoginPage(page)
-    home = HomePage(page)
-    product = ProductPage(page)
-
-    # Login
-    login.login()
+    home = HomePage(logged_in_page)
+    product = ProductPage(logged_in_page)
 
     # Navigate to Products
     home.open_sales()

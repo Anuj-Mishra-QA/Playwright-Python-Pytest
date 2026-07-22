@@ -1,17 +1,12 @@
-from pages.login_page import LoginPage
 from pages.home_page import HomePage
 from pages.inventory_page import InventoryPage
 from data.product_data import QUANTITY
 
 
-def test_update_inventory(page):
+def test_update_inventory(logged_in_page):
 
-    login = LoginPage(page)
-    home = HomePage(page)
-    inventory = InventoryPage(page)
-
-    # Login
-    login.login()
+    home = HomePage(logged_in_page)
+    inventory = InventoryPage(logged_in_page)
 
     # Navigate to Products
     home.open_sales()
