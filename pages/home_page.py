@@ -7,6 +7,10 @@ class HomePage:
         self.page.get_by_text("Sales", exact=True).click()
         print("Sales module opened successfully")
 
+    def open_purchase(self):
+        self.page.get_by_text("Purchase", exact=True).click()
+        print("Purchase module opened successfully")
+
     def open_products(self):
         self.page.get_by_text("Products", exact=True).click()
         self.page.get_by_text("Products", exact=True).nth(1).click()

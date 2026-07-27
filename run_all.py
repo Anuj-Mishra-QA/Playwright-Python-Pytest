@@ -7,6 +7,7 @@ pytest.main([
     "test/test_product.py",
     "test/test_delivery.py",
     "test/test_quotation.py",
+    "test/test_purchase_order.py",
 
     "-v",
     "--html=reports/report.html",

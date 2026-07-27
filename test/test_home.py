@@ -9,3 +9,4 @@ def test_home_navigation(logged_in_page):
     home.open_products()
     home.open_customers()
     home.open_quotations()
+    home.open_purchase()
