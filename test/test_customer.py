@@ -7,6 +7,8 @@ def test_create_customer(logged_in_page):
     home = HomePage(logged_in_page)
     customer = CustomerPage(logged_in_page)
 
+    home.go_home()
+
     home.open_sales()
     home.open_customers()
 

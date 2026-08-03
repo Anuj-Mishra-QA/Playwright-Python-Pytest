@@ -5,30 +5,27 @@ from datetime import datetime
 import pytest
 from pytest_html import extras
 
-from utils.browser import Browser
+from utils.browser_manager import BrowserManager
 from pages.login_page import LoginPage
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def page():
-    # Launch Browser
-    playwright, browser, context, page = Browser.launch_browser()
+
+    _, _, _, page = BrowserManager.get_page()
 
     yield page
 
-    # Close Browser
-    context.close()
-    browser.close()
-    playwright.stop()
+    BrowserManager.close_browser()
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def logged_in_page(page):
-    """
-    Login before executing the test.
-    """
-    login = LoginPage(page)
-    login.login()
+
+    # Login only once per session
+    if page.locator("input[name='login']").count() > 0:
+        login = LoginPage(page)
+        login.login()
 
     return page
 
@@ -47,7 +44,6 @@ def pytest_runtest_makereport(item, call):
 
         if page:
 
-            # Create screenshots directory
             screenshot_dir = os.path.join("reports", "screenshots")
             os.makedirs(screenshot_dir, exist_ok=True)
 
@@ -58,25 +54,18 @@ def pytest_runtest_makereport(item, call):
                 f"{item.name}_{timestamp}.png"
             )
 
-            # Save Screenshot
             page.screenshot(
                 path=screenshot_path,
                 full_page=True
             )
 
-            # Convert image to Base64
             with open(screenshot_path, "rb") as image_file:
                 encoded_image = base64.b64encode(
                     image_file.read()
                 ).decode("utf-8")
 
-            # Attach Screenshot to HTML Report
             extra = getattr(report, "extras", [])
-
-            extra.append(
-                extras.png(encoded_image)
-            )
-
+            extra.append(extras.png(encoded_image))
             report.extras = extra
 
             print("\n" + "=" * 70)

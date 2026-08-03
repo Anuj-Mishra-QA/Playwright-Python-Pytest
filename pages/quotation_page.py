@@ -1,3 +1,4 @@
+from playwright.sync_api import TimeoutError
 from data.quotation_data import (
     CUSTOMER_NAME,
     PRODUCT_NAME,
@@ -117,21 +118,64 @@ class QuotationPage:
     def open_delivery(self):
 
         delivery_btn = self.page.locator("button:has(i.fa-truck)")
-
         delivery_btn.wait_for(state="visible")
         delivery_btn.click()
 
         print("Delivery Opened Successfully")
 
-        self.page.get_by_role(
-            "button",
-            name="Validate"
-        ).click()
+        validate_btn = self.page.locator("button[name='button_validate']")
+        validate_btn.wait_for(state="visible")
+        validate_btn.click()
 
-        print("Delivery Validated Successfully")
+        try:
+            # Wait for alert
+            alert = self.page.get_by_text("Transfer trouble alert!")
+            alert.wait_for(state="visible", timeout=3000)
+
+            print("\n===== ALERT MESSAGE =====")
+            print(alert.text_content().strip())
+
+            # Close popup
+            self.page.locator(
+                "footer.modal-footer button.o-default-button"
+            ).click()
+
+            print("Alert Closed Successfully")
+
+            # Read Demand Quantity
+            demand_qty = self.page.locator(
+                "td[name='product_uom_qty']"
+            ).text_content().strip()
+
+            print(f"Demand Quantity : {demand_qty}")
+
+            # Click Quantity cell
+            quantity_cell = self.page.locator(
+                "td[name='quantity']"
+            )
+
+            quantity_cell.click()
+
+            # Quantity input appears after clicking
+            quantity_input = self.page.locator(
+                "td[name='quantity'] input"
+            )
+
+            quantity_input.fill(demand_qty)
+
+            print(f"Entered Quantity : {demand_qty}")
+
+            # Validate Again
+            validate_btn.click()
+
+            print("Delivery Validated Successfully")
+
+        except TimeoutError:
+
+            print("No Alert Displayed")
+            print("Delivery Validated Successfully")
 
         breadcrumb = self.page.locator("li.o_back_button a")
-
         breadcrumb.wait_for(state="visible")
         breadcrumb.click()
 

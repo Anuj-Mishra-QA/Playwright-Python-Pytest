@@ -68,16 +68,7 @@ class InventoryPage:
 
         print(f"Quantity Updated : {QUANTITY}")
 
-    # def enter_inventory_quantity(self):
-    #
-    #     quantity_field = self.page.locator("input[id^='qty_available']")
-    #
-    #     quantity_field.wait_for(state="visible")
-    #     quantity_field.click()
-    #     quantity_field.fill(str(QUANTITY))
-    #     quantity_field.press("Tab")
-
-        print(f"Inventory Quantity Entered: {QUANTITY}")
+        # print(f"Inventory Quantity Entered: {QUANTITY}")
 
     def verify_quantity_on_hand(self):
 

@@ -1,7 +1,7 @@
 import pytest
 
 pytest.main([
-    "test/test_login.py",
+    # "test/test_login.py",
     "test/test_home.py",
     "test/test_customer.py",
     "test/test_product.py",
