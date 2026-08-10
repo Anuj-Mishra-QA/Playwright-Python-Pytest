@@ -1,5 +1,10 @@
-CUSTOMER_NAME = "Automation_Customer_20260714_174946"
+CUSTOMER_NAME = "Acme Corporation"
 
-PRODUCT_NAME = "Automation_Product_20260708_163228"
+PRODUCT = {
+    "name": "Blue Denim Jeans",
+    "attributes": {
+        "Size": "L"
+    }
+}
 
 SALES_ORDER_QUANTITY = 5

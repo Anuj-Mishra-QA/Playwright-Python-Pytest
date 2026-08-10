@@ -1,3 +1,3 @@
-PRODUCT_NAME = "Automation_Product_20260708_163228"
+PRODUCT_NAME = "Bricks"
 
 QUANTITY = 100

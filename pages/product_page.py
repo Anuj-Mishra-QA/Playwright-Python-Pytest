@@ -1,4 +1,5 @@
 from datetime import datetime
+from data.product_variant_data import IS_VARIANT, VARIANTS
 
 
 class ProductPage:
@@ -31,10 +32,86 @@ class ProductPage:
         self.set_track_inventory(True)
         self.enter_price_details(100, 80)
 
+        if IS_VARIANT:
+            self.handle_variant()
+
         # Save
         self.save_product()
 
         return self.product_name
+
+    def handle_variant(self):
+
+        # Product type Goods me hi tab visible hota hai
+        variant_tab = self.page.locator("a[name='variants']")
+
+        if not variant_tab.is_visible():
+            print("Attributes & Variants tab not available")
+            return
+
+        variant_tab.click()
+
+        print("Attributes & Variants opened")
+
+        for variant in VARIANTS:
+
+            attribute = variant["attribute"]
+            value = variant["value"]
+
+
+            print(f"Processing Attribute : {attribute}")
+            print(f"Processing Value : {value}")
+
+            # Add Line
+            self.page.locator(
+                "td.o_field_x2many_list_row_add a"
+            ).click()
+
+            # Attribute Input
+            attribute_input = self.page.locator(
+                "td[name='attribute_id'] input.o-autocomplete--input"
+            )
+
+            attribute_input.fill(attribute)
+
+            self.page.wait_for_timeout(1000)
+
+            self.page.get_by_role(
+                "option",
+                name=attribute,
+                exact=True
+            ).click()
+
+            print(f"Attribute Selected : {attribute}")
+
+            # Value
+            # Value Field
+
+            value_input = self.page.locator(
+                "td[name='value_ids'] input.o-autocomplete--input"
+            )
+
+            value_input.wait_for(state="visible")
+
+            value_input.click()
+
+            value_input.fill(value)
+
+            # Wait for dropdown
+
+            self.page.locator(
+                "ul.o-autocomplete--dropdown-menu"
+            ).wait_for(state="visible")
+
+            self.page.get_by_role(
+                "option",
+                name=value.capitalize(),
+                exact=True
+            ).click()
+
+            print(f"Value Selected : {value}")
+
+            print(f"Value Selected : {value}")
 
     def select_product_type(self, product_type):
 
@@ -51,7 +128,6 @@ class ProductPage:
             if not checkbox.is_checked():
                 checkbox.check()
             print("Track Inventory Enabled")
-
         else:
             if checkbox.is_checked():
                 checkbox.uncheck()

@@ -1,7 +1,7 @@
 from playwright.sync_api import TimeoutError
 from data.quotation_data import (
     CUSTOMER_NAME,
-    PRODUCT_NAME,
+    PRODUCT,
     SALES_ORDER_QUANTITY,
 )
 
@@ -45,27 +45,82 @@ class QuotationPage:
 
         product_field.wait_for(state="visible")
         product_field.click()
-        product_field.fill(PRODUCT_NAME)
+        product_field.fill(PRODUCT["name"])
 
         self.page.locator(".o-autocomplete--dropdown-menu").wait_for()
 
         self.page.locator(
             ".o-autocomplete--dropdown-menu .dropdown-item",
-            has_text=PRODUCT_NAME
+            has_text=PRODUCT["name"]
         ).first.click()
 
-        print(f"Product Selected : {PRODUCT_NAME}")
+        print(f"Product Selected : {PRODUCT['name']}")
+
+        print("Checking Variant")
+
+        if "attributes" in PRODUCT:
+            print("Variant Found")
+            self.handle_variant()
+
+        print("After Handle Variant")
+
+    def handle_variant(self):
+
+        print("Variant Configurator Opened")
+
+        for attribute, value in PRODUCT["attributes"].items():
+            print(f"Selecting {attribute} : {value}")
+
+            self.page.get_by_text(
+                value,
+                exact=True
+            ).click()
+
+        confirm_btn = self.page.locator(
+            "button[name='sale_product_configurator_confirm_button']"
+        )
+
+        confirm_btn.wait_for(state="visible")
+        confirm_btn.click()
+
+        # Variant popup close hone ka wait
+        self.page.locator("div.o_technical_modal").wait_for(
+            state="hidden",
+            timeout=10000
+        )
+
+        # Quotation line load hone ka wait
+        self.page.wait_for_load_state("domcontentloaded")
+
+        # Product row visible hone ka wait
+        self.page.locator(
+            "td[name='product_uom_qty']"
+        ).wait_for(
+            state="visible",
+            timeout=10000
+        )
+
+        print("Variant Confirmed Successfully")
+
 
     def enter_quantity(self):
 
-        quantity_field = self.page.locator(
+        # waiting for the Quantity cell to visible
+        quantity_cell = self.page.locator(
+            "td[name='product_uom_qty']"
+        )
+
+        quantity_cell.wait_for(state="visible")
+
+        quantity_cell.click()
+
+        quantity_input = self.page.locator(
             "div[name='product_uom_qty'] input"
         )
 
-        quantity_field.wait_for(state="visible")
-        quantity_field.click()
-        quantity_field.fill(str(SALES_ORDER_QUANTITY))
-        quantity_field.press("Tab")
+        quantity_input.wait_for(state="visible")
+        quantity_input.fill(str(SALES_ORDER_QUANTITY))
+        quantity_input.press("Tab")
 
         print(f"Quotation Quantity Entered: {SALES_ORDER_QUANTITY}")
 

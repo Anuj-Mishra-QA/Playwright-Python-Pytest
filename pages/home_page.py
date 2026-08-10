@@ -1,3 +1,4 @@
+from config import BASE_URL
 class HomePage:
 
     def __init__(self, page):
@@ -9,9 +10,8 @@ class HomePage:
         Called at the beginning of every test.
         """
 
-        self.page.goto("https://edu-anujmishra.odoo.com/odoo")
+        self.page.goto(f"{BASE_URL}/odoo")
 
-        # Wait until top navigation is visible
         self.page.locator(".o_main_navbar").wait_for(timeout=30000)
 
         print("Home Dashboard opened successfully")

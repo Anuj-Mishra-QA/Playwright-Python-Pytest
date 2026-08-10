@@ -1,6 +1,6 @@
-VENDOR_NAME ="Automation_Customer_20260714_174946"
+VENDOR_NAME ="Nilesh Makwana"
 
-PRODUCT_NAME = "Automation_Product_20260708_163655"
+PRODUCT_NAME = "Acoustic Bloc Screens"
 
 PURCHASE_ORDER_QUANTITY = 5
 
