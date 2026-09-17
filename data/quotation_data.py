@@ -1,10 +1,9 @@
-CUSTOMER_NAME = "Acme Corporation"
+CUSTOMER_NAME = "ABB Pte Ltd"
 
 PRODUCT = {
-    "name": "Blue Denim Jeans",
+    "name": "PRoo112",
     "attributes": {
-        "Size": "L"
     }
 }
 
-SALES_ORDER_QUANTITY = 5
+SALES_ORDER_QUANTITY = 3

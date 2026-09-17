@@ -1,3 +1,5 @@
+import allure
+
 from pages.home_page import HomePage
 from pages.product_page import ProductPage
 
@@ -8,12 +10,17 @@ def test_create_product(logged_in_page):
     product = ProductPage(logged_in_page)
 
     home.go_home()
-
     home.open_sales()
     home.open_products()
 
-    product_name = product.create_product()
+    with allure.step("Create Product"):
 
-    assert product_name.startswith("Automation_Product_")
+        product_name = product.create_product()
 
-    print(f"\nCreated Product : {product_name}")
+        allure.attach(
+            f"Product Name : {product_name}",
+            name="Created Product",
+            attachment_type=allure.attachment_type.TEXT
+        )
+
+    print(f"Product Created/Verified : {product_name}")

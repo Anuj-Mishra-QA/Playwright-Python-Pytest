@@ -1,4 +1,6 @@
-from datetime import datetime
+import re
+from playwright.sync_api import expect
+from data.product_data import PRODUCT_NAME, PRODUCT_QUANTITY, SALES_PRICE, COST_PRICE
 from data.product_variant_data import IS_VARIANT, VARIANTS
 
 
@@ -8,41 +10,49 @@ class ProductPage:
         self.page = page
         self.product_name = ""
 
-    def create_product(self):
+    def create_product(self, product_name=None):
+        if product_name:
+            self.product_name = product_name
+        else:
+            self.product_name = PRODUCT_NAME
 
-        # Click New
+        if self.product_exists(self.product_name):
+            self.open_existing_product(self.product_name)
+            self.update_inventory_quantity(PRODUCT_QUANTITY)
+            return self.product_name
+
+        print("Product not found. Creating new product.")
+
         self.page.get_by_role("button", name="New").click()
         print("New button clicked successfully")
 
-        # Generate Product Name
-        self.product_name = (
-            "Automation_Product_"
-            + datetime.now().strftime("%Y%m%d_%H%M%S")
+        product_name_field = self.page.get_by_placeholder(
+            "e.g. Cheese Burger"
         )
 
-        # Enter Product Name
-        product_name_field = self.page.get_by_placeholder("e.g. Cheese Burger")
         product_name_field.wait_for(state="visible")
         product_name_field.fill(self.product_name)
 
         print(f"Product Name Entered: {self.product_name}")
 
-        # Product Details
         self.select_product_type("Goods")
         self.set_track_inventory(True)
-        self.enter_price_details(100, 80)
+        self.enter_price_details(
+            SALES_PRICE,
+            COST_PRICE
+        )
 
         if IS_VARIANT:
             self.handle_variant()
 
-        # Save
         self.save_product()
+        self.update_inventory_quantity(PRODUCT_QUANTITY)
 
         return self.product_name
 
     def handle_variant(self):
 
-        # Product type Goods me hi tab visible hota hai
+        # Product type should be goods
         variant_tab = self.page.locator("a[name='variants']")
 
         if not variant_tab.is_visible():
@@ -83,8 +93,6 @@ class ProductPage:
             ).click()
 
             print(f"Attribute Selected : {attribute}")
-
-            # Value
             # Value Field
 
             value_input = self.page.locator(
@@ -153,3 +161,179 @@ class ProductPage:
         self.page.wait_for_timeout(2000)
 
         print("Product Saved Successfully")
+
+    def product_exists(self, product_name):
+        search_box = self.page.get_by_role(
+            "searchbox",
+            name="Search..."
+        )
+
+        search_box.wait_for(state="visible")
+        search_box.fill(product_name)
+        search_box.press("Enter")
+
+        self.page.wait_for_timeout(1500)
+
+        product_card = self.page.locator(
+            ".o_kanban_record"
+        ).filter(
+            has=self.page.get_by_text(
+                product_name,
+                exact=True
+            )
+        )
+
+        if product_card.count() > 0:
+            print(f"Product already exists: {product_name}")
+            return True
+
+        print(f"Product does not exist: {product_name}")
+        return False
+
+    def open_existing_product(self, product_name):
+        search_box = self.page.get_by_role(
+            "searchbox",
+            name="Search..."
+        )
+
+        search_box.wait_for(state="visible")
+        search_box.fill(product_name)
+        search_box.press("Enter")
+
+        self.page.wait_for_timeout(1500)
+
+        product_card = self.page.locator(
+            ".o_kanban_record"
+        ).filter(
+            has=self.page.get_by_text(
+                product_name,
+                exact=True
+            )
+        ).first
+
+        product_card.wait_for(state="visible")
+        product_card.click()
+
+        self.page.wait_for_timeout(1500)
+
+        print(f"Existing Product Opened: {product_name}")
+
+    def update_inventory_quantity(self, quantity):
+
+        quantity_button = self.page.get_by_role(
+            "button",
+            name=re.compile(r"Units")
+        )
+
+        quantity_button.wait_for(state="visible")
+
+        quantity_text = quantity_button.inner_text().strip()
+
+        quantities = re.findall(
+            r"\d+(?:\.\d+)?",
+            quantity_text
+        )
+
+        if not quantities:
+            raise ValueError(
+                f"Unable to read current product quantity from: {quantity_text}"
+            )
+
+        current_quantity = float(quantities[0])
+
+        print(f"Current Product Quantity Before Update: {current_quantity}")
+
+        quantity_button.click()
+
+        print("Quantity Details Opened")
+
+        update_quantity_button = self.page.get_by_role(
+            "button",
+            name="Update Quantity"
+        )
+
+        update_quantity_button.wait_for(state="visible")
+        update_quantity_button.click()
+
+        print("Update Quantity opened")
+
+        # Current quantity is 0
+        if current_quantity == 0:
+
+            print("Current Quantity is 0")
+            print("Creating New Inventory Line")
+
+            new_button = self.page.locator(
+                "button.o_list_button_add"
+            )
+
+            new_button.wait_for(state="visible")
+            new_button.click()
+
+            print("New Inventory Line Created")
+
+            quantity_input = self.page.get_by_role("textbox")
+            quantity_input.wait_for(state="visible")
+            quantity_input.fill(str(quantity))
+
+            print(f"New Inventory Quantity Entered: {quantity}")
+
+        # Current quantity is greater than 0
+        else:
+
+            print("Existing Product Quantity Found")
+
+            quantity_cell = self.page.locator(
+                "td[name='inventory_quantity_auto_apply']"
+            ).first
+
+            quantity_cell.wait_for(state="visible")
+            quantity_cell.click(force=True)
+
+            print("Existing Inventory Quantity Cell Opened")
+
+            quantity_input = self.page.get_by_role("textbox")
+            quantity_input.wait_for(state="visible")
+            quantity_input.fill(str(quantity))
+
+            print(f"Existing Inventory Quantity Updated: {quantity}")
+
+        # Save
+        self.page.get_by_role(
+            "button",
+            name="Save"
+        ).click()
+
+        print(f"Inventory Quantity Saved: {quantity}")
+
+        self.page.wait_for_timeout(2000)
+
+    def get_current_quantity(self):
+        quantity_field = self.page.locator(
+            "div[name='qty_available'].o_field_float"
+        )
+
+        quantity_field.wait_for(state="visible")
+
+        quantity_text = quantity_field.inner_text().strip()
+
+        current_quantity = float(quantity_text)
+
+        print(f"Current Quantity : {current_quantity}")
+
+        return current_quantity
+
+    def get_sales_quantity(self):
+        quantity_field = self.page.locator(
+            "div[name='qty_available'].o_field_float.o_readonly_modifier"
+        )
+
+        quantity_field.wait_for(state="visible")
+
+        quantity_text = quantity_field.inner_text().strip()
+
+        current_quantity = float(quantity_text)
+
+        print(f"Sales Current Quantity : {current_quantity}")
+
+        return current_quantity

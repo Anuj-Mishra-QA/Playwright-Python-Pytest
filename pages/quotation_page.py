@@ -37,32 +37,36 @@ class QuotationPage:
 
         print(f"Customer Selected : {CUSTOMER_NAME}")
 
-    def add_product(self):
+    def add_product(self, product):
+        self.page.get_by_role(
+            "button",
+            name="Add a product"
+        ).click()
 
-        self.page.get_by_text("Add a product").click()
+        product_field = self.page.get_by_role(
+            "combobox",
+            name="Search a product"
+        )
 
-        product_field = self.page.get_by_placeholder("Search a product")
+        product_field.fill(product["name"])
+        self.page.wait_for_timeout(1000)
 
-        product_field.wait_for(state="visible")
-        product_field.click()
-        product_field.fill(PRODUCT["name"])
+        product_option = self.page.get_by_role(
+            "option",
+            name=product["name"],
+            exact=True
+        ).first
 
-        self.page.locator(".o-autocomplete--dropdown-menu").wait_for()
+        product_option.wait_for(state="visible")
+        product_option.click()
 
-        self.page.locator(
-            ".o-autocomplete--dropdown-menu .dropdown-item",
-            has_text=PRODUCT["name"]
-        ).first.click()
+        print(f"Product Selected : {product['name']}")
 
-        print(f"Product Selected : {PRODUCT['name']}")
+        attributes = product.get("attributes", {})
 
-        print("Checking Variant")
-
-        if "attributes" in PRODUCT:
-            print("Variant Found")
-            self.handle_variant()
-
-        print("After Handle Variant")
+        if attributes:
+            # Attribute/Variant selection yahan handle hoga
+            ...
 
     def handle_variant(self):
 
@@ -102,16 +106,13 @@ class QuotationPage:
 
         print("Variant Confirmed Successfully")
 
+    def enter_quantity(self, quantity):
 
-    def enter_quantity(self):
-
-        # waiting for the Quantity cell to visible
         quantity_cell = self.page.locator(
             "td[name='product_uom_qty']"
         )
 
         quantity_cell.wait_for(state="visible")
-
         quantity_cell.click()
 
         quantity_input = self.page.locator(
@@ -119,10 +120,10 @@ class QuotationPage:
         )
 
         quantity_input.wait_for(state="visible")
-        quantity_input.fill(str(SALES_ORDER_QUANTITY))
+        quantity_input.fill(str(quantity))
         quantity_input.press("Tab")
 
-        print(f"Quotation Quantity Entered: {SALES_ORDER_QUANTITY}")
+        print(f"Quotation Quantity Entered: {quantity}")
 
     def verify_amount(self):
 
@@ -172,46 +173,49 @@ class QuotationPage:
 
     def open_delivery(self):
 
-        delivery_btn = self.page.locator("button:has(i.fa-truck)")
+        delivery_btn = self.page.locator(
+            "button:has(i.fa-truck)"
+        )
+
         delivery_btn.wait_for(state="visible")
         delivery_btn.click()
 
         print("Delivery Opened Successfully")
 
-        validate_btn = self.page.locator("button[name='button_validate']")
+    def validate_delivery(self):
+
+        validate_btn = self.page.locator(
+            "button[name='button_validate']"
+        )
+
         validate_btn.wait_for(state="visible")
         validate_btn.click()
 
         try:
-            # Wait for alert
             alert = self.page.get_by_text("Transfer trouble alert!")
             alert.wait_for(state="visible", timeout=3000)
 
             print("\n===== ALERT MESSAGE =====")
             print(alert.text_content().strip())
 
-            # Close popup
             self.page.locator(
                 "footer.modal-footer button.o-default-button"
             ).click()
 
             print("Alert Closed Successfully")
 
-            # Read Demand Quantity
             demand_qty = self.page.locator(
                 "td[name='product_uom_qty']"
             ).text_content().strip()
 
             print(f"Demand Quantity : {demand_qty}")
 
-            # Click Quantity cell
             quantity_cell = self.page.locator(
                 "td[name='quantity']"
             )
 
             quantity_cell.click()
 
-            # Quantity input appears after clicking
             quantity_input = self.page.locator(
                 "td[name='quantity'] input"
             )
@@ -220,15 +224,12 @@ class QuotationPage:
 
             print(f"Entered Quantity : {demand_qty}")
 
-            # Validate Again
             validate_btn.click()
 
-            print("Delivery Validated Successfully")
-
         except TimeoutError:
-
             print("No Alert Displayed")
-            print("Delivery Validated Successfully")
+
+        print("Delivery Validated Successfully")
 
         breadcrumb = self.page.locator("li.o_back_button a")
         breadcrumb.wait_for(state="visible")
@@ -258,3 +259,13 @@ class QuotationPage:
         ).click()
 
         print("Invoice Confirmed Successfully")
+
+    def get_sales_order_number(self):
+
+        order_number = self.page.locator(
+            "div[name='name'] span"
+        ).inner_text().strip()
+
+        print(f"Sales Order Number : {order_number}")
+
+        return order_number

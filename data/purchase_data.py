@@ -1,6 +1,6 @@
-VENDOR_NAME ="Nilesh Makwana"
+VENDOR_NAME ="ABB Pte Ltd"
 
-PRODUCT_NAME = "Acoustic Bloc Screens"
+PRODUCT_NAME = "PRoo112"
 
 PURCHASE_ORDER_QUANTITY = 5
 

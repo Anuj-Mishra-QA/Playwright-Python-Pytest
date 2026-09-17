@@ -3,6 +3,7 @@ import base64
 from datetime import datetime
 
 import pytest
+import allure
 from pytest_html import extras
 
 from utils.browser_manager import BrowserManager
@@ -33,7 +34,8 @@ def logged_in_page(page):
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     """
-    Capture screenshot on test failure and attach it to HTML report.
+    Capture screenshot on test failure and attach it to
+    both HTML and Allure reports.
     """
     outcome = yield
     report = outcome.get_result()
@@ -59,6 +61,7 @@ def pytest_runtest_makereport(item, call):
                 full_page=True
             )
 
+            # Attach screenshot to HTML report
             with open(screenshot_path, "rb") as image_file:
                 encoded_image = base64.b64encode(
                     image_file.read()
@@ -67,6 +70,13 @@ def pytest_runtest_makereport(item, call):
             extra = getattr(report, "extras", [])
             extra.append(extras.png(encoded_image))
             report.extras = extra
+
+            # Attach screenshot to Allure report
+            allure.attach.file(
+                screenshot_path,
+                name="Failure Screenshot",
+                attachment_type=allure.attachment_type.PNG
+            )
 
             print("\n" + "=" * 70)
             print(f"Screenshot Saved : {screenshot_path}")
