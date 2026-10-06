@@ -2,6 +2,7 @@ from utils.browser import Browser
 
 
 class BrowserManager:
+
     playwright = None
     browser = None
     context = None
@@ -11,7 +12,13 @@ class BrowserManager:
     def get_page(cls):
 
         if cls.page is None:
-            cls.playwright, cls.browser, cls.context, cls.page = Browser.launch_browser()
+
+            (
+                cls.playwright,
+                cls.browser,
+                cls.context,
+                cls.page
+            ) = Browser.launch_browser()
 
         return (
             cls.playwright,

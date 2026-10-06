@@ -73,11 +73,8 @@ class InventoryPage:
     def verify_quantity_on_hand(self):
 
         quantity_field = self.page.locator("input[id^='qty_available']")
-
         quantity_field.wait_for(state="visible")
-
         current_quantity = quantity_field.input_value()
-
         print(f"Current Quantity On Hand: {current_quantity}")
 
         return current_quantity

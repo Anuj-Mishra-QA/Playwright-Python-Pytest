@@ -167,9 +167,7 @@ class PurchasePage:
         print("Vendor Bill Closed")
 
         self.page.locator("#invoice_date_1").click()
-
         self.page.get_by_text("16").click()
-
         self.page.get_by_role(
             "button",
             name="Save manually"
@@ -189,7 +187,6 @@ class PurchasePage:
         )
 
         quantity_button.wait_for(state="visible")
-
         quantity_text = quantity_button.inner_text().strip()
 
         quantities = re.findall(
@@ -203,7 +200,6 @@ class PurchasePage:
             )
 
         current_quantity = float(quantities[0])
-
         print(f"Current Quantity : {current_quantity}")
 
         return current_quantity

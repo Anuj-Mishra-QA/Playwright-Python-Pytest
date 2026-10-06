@@ -12,11 +12,8 @@ def test_update_inventory(logged_in_page):
 
     home.open_sales()
     home.open_products()
-
     inventory.search_product()
-
     inventory.verify_track_inventory()
-
     quantity = inventory.verify_quantity_on_hand()
 
     assert float(quantity) == float(QUANTITY)

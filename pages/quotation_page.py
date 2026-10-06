@@ -93,10 +93,10 @@ class QuotationPage:
             timeout=10000
         )
 
-        # Quotation line load hone ka wait
+        # Waiting for the quotation line
         self.page.wait_for_load_state("domcontentloaded")
 
-        # Product row visible hone ka wait
+        # Waiting for the product row
         self.page.locator(
             "td[name='product_uom_qty']"
         ).wait_for(

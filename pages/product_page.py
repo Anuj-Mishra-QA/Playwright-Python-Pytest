@@ -124,7 +124,6 @@ class ProductPage:
     def select_product_type(self, product_type):
 
         self.page.get_by_text(product_type, exact=True).click()
-
         print(f"Product Type Selected: {product_type}")
 
     def set_track_inventory(self, enable=True):
@@ -154,7 +153,6 @@ class ProductPage:
     def save_product(self):
 
         save_button = self.page.locator("i.fa-cloud-upload")
-
         save_button.wait_for(state="visible")
         save_button.click()
 
@@ -226,7 +224,6 @@ class ProductPage:
         )
 
         quantity_button.wait_for(state="visible")
-
         quantity_text = quantity_button.inner_text().strip()
 
         quantities = re.findall(
@@ -240,11 +237,8 @@ class ProductPage:
             )
 
         current_quantity = float(quantities[0])
-
         print(f"Current Product Quantity Before Update: {current_quantity}")
-
         quantity_button.click()
-
         print("Quantity Details Opened")
 
         update_quantity_button = self.page.get_by_role(
@@ -305,7 +299,6 @@ class ProductPage:
         ).click()
 
         print(f"Inventory Quantity Saved: {quantity}")
-
         self.page.wait_for_timeout(2000)
 
     def get_current_quantity(self):
@@ -314,11 +307,8 @@ class ProductPage:
         )
 
         quantity_field.wait_for(state="visible")
-
         quantity_text = quantity_field.inner_text().strip()
-
         current_quantity = float(quantity_text)
-
         print(f"Current Quantity : {current_quantity}")
 
         return current_quantity
@@ -329,11 +319,8 @@ class ProductPage:
         )
 
         quantity_field.wait_for(state="visible")
-
         quantity_text = quantity_field.inner_text().strip()
-
         current_quantity = float(quantity_text)
-
         print(f"Sales Current Quantity : {current_quantity}")
 
         return current_quantity

@@ -1,7 +1,7 @@
-CUSTOMER_NAME = "ABB Pte Ltd"
+CUSTOMER_NAME = "Another Customer001"
 
 PRODUCT = {
-    "name": "PRoo112",
+    "name": "Accelly",
     "attributes": {
     }
 }

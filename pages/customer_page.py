@@ -7,6 +7,7 @@ class CustomerPage:
         self.page = page
         self.customer_name = ""
         self.customer_email = ""
+        self.zip_code = ""
 
     def customer_exists_by_email(self, email):
 
@@ -29,17 +30,13 @@ class CustomerPage:
         )
 
         exists = customer_record.count() > 0
-
         print(f"Customer exists with email {email}: {exists}")
-
         return exists
 
     def new_customer(self):
 
         self.page.locator("button.o_list_button_add").click()
-
         print("New Customer opened")
-
         self.page.locator(
             "div[name='name'] input"
         ).wait_for(state="visible")
@@ -60,7 +57,6 @@ class CustomerPage:
     def enter_customer_name(self):
 
         self.customer_name = CUSTOMER["name"]
-
         self.page.locator(
             "input[id^='name']"
         ).fill(self.customer_name)
@@ -74,7 +70,6 @@ class CustomerPage:
     def enter_email(self):
 
         self.customer_email = CUSTOMER["email"]
-
         self.page.locator(
             "input[type='email']"
         ).fill(self.customer_email)
@@ -92,20 +87,17 @@ class CustomerPage:
         ).input_value()
 
         print(f"Saved Email : {saved_email}")
-
         return saved_email
 
     def select_country(self):
 
         country = CUSTOMER["country"]
-
         country_field = self.page.locator(
             "input[id^='country_id']"
         )
 
         country_field.click()
         country_field.fill(country)
-
         self.page.locator(
             ".o-autocomplete--dropdown-menu"
         ).wait_for()
@@ -116,6 +108,15 @@ class CustomerPage:
         ).click()
 
         print(f"Country Selected: {country}")
+
+    def enter_zip_code(self):
+        zip_code = CUSTOMER["zip_code"]
+        zip_code_field = self.page.locator("input[id='zip_0']")
+
+        zip_code_field.fill(zip_code)
+        print(
+            f"Zip Code Entered: {zip_code}"
+        )
 
     def save_customer(self):
 
@@ -134,7 +135,6 @@ class CustomerPage:
 
         customer_record.wait_for(state="visible")
         customer_record.click()
-
         print(f"Existing Customer Opened: {email}")
 
         self.page.locator(

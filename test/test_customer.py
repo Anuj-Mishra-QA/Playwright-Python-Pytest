@@ -12,7 +12,6 @@ def test_create_customer(logged_in_page):
     customer = CustomerPage(logged_in_page)
 
     home.go_home()
-
     home.open_sales()
     home.open_customers()
 
@@ -49,6 +48,7 @@ def test_create_customer(logged_in_page):
         customer.enter_customer_name()
         customer.enter_email()
         customer.select_country()
+        customer.enter_zip_code()
         customer.save_customer()
 
         print("Existing Customer Updated Successfully")
@@ -57,11 +57,10 @@ def test_create_customer(logged_in_page):
 
         customer.new_customer()
         customer.select_person()
-
         customer_name = customer.enter_customer_name()
         customer_email = customer.enter_email()
-
         customer.select_country()
+        # customer.enter_zip_code()
         customer.save_customer()
 
         assert customer_name == CUSTOMER["name"]

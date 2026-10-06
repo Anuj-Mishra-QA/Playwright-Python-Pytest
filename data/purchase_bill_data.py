@@ -1,0 +1,5 @@
+PURCHASE_ORDER_NUMBER = "P00106"
+
+BILL_DATE = "23"
+
+BILL_FILE = "Quotation - S01725 (1).pdf"
