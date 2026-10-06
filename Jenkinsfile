@@ -3,9 +3,12 @@ pipeline {
     agent any
 
     environment {
-        PYTHONUNBUFFERED = '1'
+        PYTHON = 'C:\\Users\\anuj.mishra\\AppData\\Local\\Programs\\Python\\Python311\\python.exe'
+        GIT = 'C:\\Users\\anuj.mishra.BRAINVIRE\\AppData\\Local\\Programs\\Git\\cmd\\git.exe'
+
         ENV = 'QA'
         BROWSER = 'chrome'
+        PYTHONUNBUFFERED = '1'
     }
 
     stages {
@@ -16,9 +19,10 @@ pipeline {
                     echo ==============================
                     echo Checking Environment
                     echo ==============================
-                    python --version
-                    python -m pip --version
-                    git --version
+
+                    "%PYTHON%" --version
+                    "%PYTHON%" -m pip --version
+                    "%GIT%" --version
                     allure --version
                 '''
             }
@@ -31,14 +35,14 @@ pipeline {
                     echo Installing Python Dependencies
                     echo ==============================
 
-                    python -m pip install --upgrade pip
-                    python -m pip install pytest
-                    python -m pip install playwright
-                    python -m pip install allure-pytest
-                    python -m pip install pytest-html
-                    python -m pip install pytest-xdist
+                    "%PYTHON%" -m pip install --upgrade pip
+                    "%PYTHON%" -m pip install pytest
+                    "%PYTHON%" -m pip install playwright
+                    "%PYTHON%" -m pip install allure-pytest
+                    "%PYTHON%" -m pip install pytest-html
+                    "%PYTHON%" -m pip install pytest-xdist
 
-                    python -m playwright install
+                    "%PYTHON%" -m playwright install
                 '''
             }
         }
@@ -54,31 +58,13 @@ pipeline {
                         rmdir /s /q reports\\allure-result
                     )
 
-                    python -m pytest test ^
+                    "%PYTHON%" -m pytest test ^
                         -v ^
                         -s ^
                         --alluredir=reports/allure-result ^
                         --clean-alluredir ^
                         --html=reports/report.html ^
                         --self-contained-html
-                '''
-            }
-        }
-
-        stage('Generate Allure Report') {
-            steps {
-                bat '''
-                    echo ==============================
-                    echo Generating Allure Report
-                    echo ==============================
-
-                    if exist reports\\allure-report (
-                        rmdir /s /q reports\\allure-report
-                    )
-
-                    allure generate reports/allure-result ^
-                        -o reports/allure-report ^
-                        --clean
                 '''
             }
         }
@@ -90,14 +76,21 @@ pipeline {
             echo 'Publishing test reports...'
 
             archiveArtifacts artifacts: 'reports/report.html', allowEmptyArchive: true
+
             archiveArtifacts artifacts: 'reports/screenshots/**/*', allowEmptyArchive: true
 
-            allure(
-                includeProperties: false,
-                results: [
-                    [path: 'reports/allure-result']
-                ]
-            )
+            script {
+                if (fileExists('reports/allure-result')) {
+                    allure(
+                        includeProperties: false,
+                        results: [
+                            [path: 'reports/allure-result']
+                        ]
+                    )
+                } else {
+                    echo 'Allure results directory not found. Skipping Allure report.'
+                }
+            }
         }
 
         success {
@@ -105,7 +98,7 @@ pipeline {
         }
 
         failure {
-            echo 'Playwright automation failed. Check the test and Allure reports.'
+            echo 'Playwright automation failed. Check the console output and reports.'
         }
     }
 }
