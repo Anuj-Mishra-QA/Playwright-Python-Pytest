@@ -1,7 +1,7 @@
 import os
 import random
 import pytest
-
+from pathlib import Path
 from data.purchase_bill_data import (
     PURCHASE_ORDER_NUMBER,
     BILL_DATE
@@ -163,49 +163,25 @@ class PurchaseBillPage:
         return "\n".join(amount_details)
 
     def upload_bill(self):
-        screenshots_folder = os.path.join(
-            os.path.expanduser("~"),
-            "Pictures",
-            "Screenshots"
-        )
+        project_root = Path(__file__).resolve().parent.parent
+        bill_file = project_root / "files" / "sample_bill.png"
 
-        screenshot_files = [
-            os.path.join(screenshots_folder, file)
-            for file in os.listdir(screenshots_folder)
-            if os.path.isfile(
-                os.path.join(screenshots_folder, file)
+        if not bill_file.exists():
+            raise FileNotFoundError(
+                f"Test bill file not found: {bill_file}"
             )
-               and file.lower().endswith(
-                (".png", ".jpg", ".jpeg", ".webp")
-            )
-        ]
-
-        if not screenshot_files:
-            pytest.fail(
-                "No screenshot found in Pictures\\Screenshots folder"
-            )
-
-        selected_file = random.choice(screenshot_files)
-
-        upload_button = self.page.get_by_role(
-            "button",
-            name="Upload Bill"
-        )
 
         with self.page.expect_file_chooser() as file_chooser_info:
-            upload_button.click()
+            # Keep your existing Upload button locator here
+            self.page.get_by_role(
+                "button",
+                name="Upload"
+            ).click()
 
         file_chooser = file_chooser_info.value
-        file_chooser.set_files(selected_file)
+        file_chooser.set_files(str(bill_file))
 
-        selected_file_name = os.path.basename(selected_file)
-
-        print(
-            f"Random Screenshot Selected : "
-            f"{selected_file_name}"
-        )
-
-        return selected_file_name
+        return str(bill_file)
 
     def pay_bill(self):
         self.page.get_by_role(

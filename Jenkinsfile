@@ -9,6 +9,8 @@ pipeline {
         ENV = 'QA'
         BROWSER = 'chrome'
         PYTHONUNBUFFERED = '1'
+        PYTHONIOENCODING = 'utf-8'
+        PYTHONUTF8 = '1'
     }
 
     stages {
